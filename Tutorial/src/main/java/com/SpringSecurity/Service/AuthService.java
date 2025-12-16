@@ -5,7 +5,9 @@ import com.SpringSecurity.dto.RegisterRequest;
 import com.SpringSecurity.dto.UserResponse;
 import com.SpringSecurity.entity.User;
 import com.SpringSecurity.repository.UserRepository;
+import com.SpringSecurity.security.JwtUtil;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -16,15 +18,23 @@ import java.util.stream.Collectors;
 public class AuthService {
     private final UserRepository repository;
 
-    public AuthService(UserRepository repository) {
+    private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
+
+
+    public AuthService(UserRepository repository,
+                       JwtUtil jwtUtil,
+                       PasswordEncoder passwordEncoder) {
         this.repository = repository;
+        this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public String register(RegisterRequest request){
         User user=new User();
 
         user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
 
         repository.save(user);
@@ -36,11 +46,12 @@ public class AuthService {
         User user=repository.findByUsername(request.getUsername())
                 .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"User not Found"));
 
-        if(!user.getPassword().equals(request.getPassword())){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Invalid Password");
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED, "Invalid password");
         }
 
-        return "Login Successful for user: "+user.getUsername();
+        return jwtUtil.generateToken(user.getUsername());
 
     }
 // PUBLIC APIs to get only ROLE_USERS
