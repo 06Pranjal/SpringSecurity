@@ -1,7 +1,9 @@
 package com.SpringSecurity.controller;
 
 import com.SpringSecurity.Service.AuthService;
+import com.SpringSecurity.dto.AuthResponse;
 import com.SpringSecurity.dto.LoginRequest;
+import com.SpringSecurity.dto.RefreshTokenRequest;
 import com.SpringSecurity.dto.RegisterRequest;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,7 +25,13 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request){
+    public AuthResponse login(@RequestBody LoginRequest request){
         return authService.login(request);
     }
+
+    @PostMapping("/refresh")
+    public String refresh(@RequestBody RefreshTokenRequest request) {
+        return authService.refreshAccessToken(request.getRefreshToken());
+    }
+
 }

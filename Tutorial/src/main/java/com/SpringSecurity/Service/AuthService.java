@@ -1,5 +1,6 @@
 package com.SpringSecurity.Service;
 
+import com.SpringSecurity.dto.AuthResponse;
 import com.SpringSecurity.dto.LoginRequest;
 import com.SpringSecurity.dto.RegisterRequest;
 import com.SpringSecurity.dto.UserResponse;
@@ -42,7 +43,7 @@ public class AuthService {
 
     }
 
-    public String login(LoginRequest request){
+    public AuthResponse login(LoginRequest request){
         User user=repository.findByUsername(request.getUsername())
                 .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"User not Found"));
 
@@ -51,7 +52,10 @@ public class AuthService {
                     HttpStatus.UNAUTHORIZED, "Invalid password");
         }
 
-        return jwtUtil.generateToken(user.getUsername());
+        String accessToken=jwtUtil.generateAccessToken(user.getUsername());
+        String refreshToken=jwtUtil.generateRefreshToken(user.getUsername());
+
+        return new AuthResponse(accessToken,refreshToken);
 
     }
 // PUBLIC APIs to get only ROLE_USERS
@@ -79,5 +83,16 @@ public class AuthService {
                 .collect(Collectors.toList());
 
     }
+
+    public String refreshAccessToken(String refreshToken) {
+
+        if (!jwtUtil.isTokenValid(refreshToken)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
+        }
+
+        String username = jwtUtil.extractUsername(refreshToken);
+        return jwtUtil.generateAccessToken(username);
+    }
+
 
 }
