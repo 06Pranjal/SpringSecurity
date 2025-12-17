@@ -4,13 +4,14 @@ spring:
       client:
         registration:
           google:
-            client-id: 529676612596-e36csa5ev0lo8vmm9sn84nitn0meu4r0.apps.googleusercontent.com
-            client-secret: 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
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
             scope:
               - email
               - profile
+
           github:
-            client-id: Ov23liZIslqATahnHeVx
-            client-secret: 2791af0e63219282b03b07f77c8abd62bb0828ce
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
             scope:
               - user:email
