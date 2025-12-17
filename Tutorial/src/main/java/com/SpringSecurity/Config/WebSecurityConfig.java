@@ -26,6 +26,13 @@ public class WebSecurityConfig {
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth->auth
                         .requestMatchers(
+                                "/",
+                                "/index.html",
+                                "/dashboard.html",
+                                "/app.js"
+                        ).permitAll()
+
+                        .requestMatchers(
                                 "/auth/login",
                                 "/auth/register",
                                 "/auth/refresh",

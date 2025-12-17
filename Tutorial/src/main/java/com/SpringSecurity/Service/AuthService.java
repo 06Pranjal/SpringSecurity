@@ -4,6 +4,7 @@ import com.SpringSecurity.dto.*;
 import com.SpringSecurity.entity.User;
 import com.SpringSecurity.repository.UserRepository;
 import com.SpringSecurity.security.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -117,5 +118,22 @@ public class AuthService {
     }
 
 
+    public String logout(HttpServletRequest request) {
+        String authHeader=request.getHeader("Authorization");
 
+        if(authHeader==null || !authHeader.startsWith("Bearer ")){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"No Token Found");
+        }
+
+        String token=authHeader.substring(7);
+        String username=jwtUtil.extractUsername(token);
+
+        User user=repository.findByUsername(username)
+                .orElseThrow(()->new ResponseStatusException((HttpStatus.NOT_FOUND)));
+
+        user.setRefreshToken(null);
+        repository.save(user);
+
+        return "Logged out successfully";
+    }
 }

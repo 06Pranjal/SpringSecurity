@@ -5,6 +5,7 @@ import com.SpringSecurity.dto.AuthResponse;
 import com.SpringSecurity.dto.LoginRequest;
 import com.SpringSecurity.dto.RefreshTokenRequest;
 import com.SpringSecurity.dto.RegisterRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +33,11 @@ public class AuthController {
     @PostMapping("/refresh")
     public AuthResponse refresh(@RequestBody RefreshTokenRequest request) {
         return authService.refreshToken(request);
+    }
+
+    @PostMapping("/logout")
+    public String logout(HttpServletRequest request){
+        return authService.logout(request);
     }
 
 }
