@@ -33,6 +33,7 @@ public class AuthService {
         User user=new User();
 
         user.setUsername(request.getUsername());
+        user.setProvider("LOCAL");
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
 

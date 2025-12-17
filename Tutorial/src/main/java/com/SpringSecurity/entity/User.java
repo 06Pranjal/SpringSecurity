@@ -25,6 +25,9 @@ public class User {
     @Column(length = 500)
     private String refreshToken;
 
+    @Column(nullable = false)
+    private String provider;
+
 
     public int getId() {
         return id;
@@ -64,5 +67,13 @@ public class User {
 
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
     }
 }
