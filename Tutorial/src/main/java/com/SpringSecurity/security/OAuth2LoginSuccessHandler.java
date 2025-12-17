@@ -32,14 +32,25 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
         OAuth2User oAuth2User=(OAuth2User)  authentication.getPrincipal();
+
+        String provider=authentication
+                .getAuthorities()
+                .toString()
+                .contains("GOOGLE")? "GOOGLE" :"GITHUB";
+
         String email=oAuth2User.getAttribute("email");
 
+        if(email==null){
+            email=oAuth2User.getAttribute("login")+"@github.com";
+        }
+
+        String finalEmail = email;
         User user=userRepository.findByUsername(email)
                 .orElseGet(()->{
                     User newUser=new User();
-                    newUser.setUsername(email);
+                    newUser.setUsername(finalEmail);
                     newUser.setRole("ROLE_USER");
-                    newUser.setProvider("GOOGLE");
+                    newUser.setProvider(provider);
 
                     newUser.setPassword(
                             passwordEncoder.encode("OAUTH2_USER")
