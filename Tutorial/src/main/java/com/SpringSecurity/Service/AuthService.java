@@ -1,9 +1,6 @@
 package com.SpringSecurity.Service;
 
-import com.SpringSecurity.dto.AuthResponse;
-import com.SpringSecurity.dto.LoginRequest;
-import com.SpringSecurity.dto.RegisterRequest;
-import com.SpringSecurity.dto.UserResponse;
+import com.SpringSecurity.dto.*;
 import com.SpringSecurity.entity.User;
 import com.SpringSecurity.repository.UserRepository;
 import com.SpringSecurity.security.JwtUtil;
@@ -55,6 +52,9 @@ public class AuthService {
         String accessToken=jwtUtil.generateAccessToken(user.getUsername());
         String refreshToken=jwtUtil.generateRefreshToken(user.getUsername());
 
+        user.setRefreshToken(refreshToken);
+        repository.save(user);
+
         return new AuthResponse(accessToken,refreshToken);
 
     }
@@ -84,15 +84,38 @@ public class AuthService {
 
     }
 
-    public String refreshAccessToken(String refreshToken) {
+//    public String refreshAccessToken(String refreshToken) {
+//
+//        if (!jwtUtil.isTokenValid(refreshToken)) {
+//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
+//        }
+//
+//        String username = jwtUtil.extractUsername(refreshToken);
+//        return jwtUtil.generateAccessToken(username);
+//    }
 
-        if (!jwtUtil.isTokenValid(refreshToken)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
+
+    public AuthResponse refreshToken(RefreshTokenRequest request) {
+
+        // 1️⃣ Extract username from refresh token
+        String username = jwtUtil.extractUsername(request.getRefreshToken());
+
+        // 2️⃣ Fetch user from DB
+        User user = repository.findByUsername(username)
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
+
+        // 3️⃣ Compare DB refresh token
+        if (!request.getRefreshToken().equals(user.getRefreshToken())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token mismatch");
         }
 
-        String username = jwtUtil.extractUsername(refreshToken);
-        return jwtUtil.generateAccessToken(username);
+        // 4️⃣ Generate new access token
+        String newAccessToken = jwtUtil.generateAccessToken(username);
+
+        return new AuthResponse(newAccessToken, request.getRefreshToken());
     }
+
 
 
 }

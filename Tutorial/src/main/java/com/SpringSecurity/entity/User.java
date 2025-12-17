@@ -22,6 +22,10 @@ public class User {
     @Column(nullable = false)
     private String role;
 
+    @Column(length = 500)
+    private String refreshToken;
+
+
     public int getId() {
         return id;
     }
@@ -52,5 +56,13 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }

@@ -1,6 +1,7 @@
 package com.SpringSecurity.security;
 
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -24,8 +25,8 @@ public class JwtUtil {
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis()+accessExpiration))
-                .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
+                .expiration(new Date(System.currentTimeMillis()+15*60*1000))
+                .signWith(Keys.hmacShaKeyFor(secret.getBytes()), SignatureAlgorithm.HS256)
                 .compact();
 
     }
@@ -34,8 +35,8 @@ public class JwtUtil {
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + refreshExpiration))
-                .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
+                .expiration(new Date(System.currentTimeMillis() + 7L*24*60*60*1000))
+                .signWith(Keys.hmacShaKeyFor(secret.getBytes()), SignatureAlgorithm.HS256)
                 .compact();
     }
 
